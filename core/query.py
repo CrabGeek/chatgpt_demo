@@ -1,12 +1,5 @@
-import json
-
-import openai
 import requests
 
-# openai.api_key = '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'
-#
-# response = openai.Completion.create(model='text-davinci-003', prompt="Say this is a text", temperature=0, max_tokens=7)
-# print(response)
 question = "帮我把下面的短文做个摘要，短文：我是最不受这种激情折磨的人之一，尽管社会已经同意以公正的报酬来表彰她的特殊恩宠，但我对她没有任何爱好或热爱；在世界上，智慧，美德，良心都被掩饰了；丑陋而愚蠢的装饰品..."
 response = requests.post(url="https://api.openai.com/v1/chat/completions",
                          headers={
@@ -27,4 +20,3 @@ response = requests.post(url="https://api.openai.com/v1/chat/completions",
 print(question)
 full_response_json = json.loads(response.content.decode("utf-8"))
 print(full_response_json['choices'])
-
