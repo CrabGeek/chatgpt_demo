@@ -17,9 +17,17 @@ def query():
     if not request.json:
         abort(400)
     data = json.loads(request.get_data())
-    if not is_valid_request_json(data):
-        abort(400)
     print(data)
+    rep = {
+        'response': 'Thanks'
+    }
+    return json.dumps(rep)
+
+
+@app.route(rule='/query/file/upload', methods=['POST'])
+def query_file():
+    f = request.files['file']
+    f
     rep = {
         'response': 'Thanks'
     }
