@@ -5,6 +5,7 @@ import os
 
 from flask import Flask, render_template, request, abort
 from core import apitokenpool as apipool
+from core import querybot as bot
 
 app = Flask(__name__, template_folder='template')
 log = logging.getLogger()
@@ -17,12 +18,12 @@ def init():
 
     log.setLevel(config.get('LOG', 'log_level'))
     handler = logging.StreamHandler()
+    handler.setFormatter(logging.Formatter('%(asctime)s-%(levelname)s: %(message)s'))
+
     log.addHandler(handler)
 
     pool = apipool.ApiTokenPool()
     pool.set(config.get('OPENAI', 'api_tokens').split(','))
-
-    log.info(pool.get_all())
 
 
 @app.route('/')
@@ -33,12 +34,16 @@ def index():
 @app.route(rule='/query', methods=['POST'])
 def query():
     data = request.get_json()
-    if not data or data == '':
+    if not data or data == '' or not data['query'] or data['query'] == '':
+        log.warning('user question is empty')
         abort(400)
     log.info(data['query'])
     # TODO: query via OPENAI
+    queryBot = bot.QueryBot()
+    answer = queryBot.query(data['query'])
+    log.info(f'AI answer: [{answer}]')
     rep = {
-        'response': 'Thanks'
+        'response': answer
     }
     return json.dumps(rep)
 
