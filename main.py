@@ -4,6 +4,7 @@ import logging
 import os
 
 from flask import Flask, render_template, request, abort
+from flask_cors import CORS
 from core import apitokenpool as apipool
 from core import querybot as bot
 
@@ -16,6 +17,9 @@ def init():
     config.read('./config.ini')
     app.config['UPLOAD_FOLDER'] = config.get('UPLOAD', 'upload_folder')
 
+    # 设置跨域
+    CORS(app, resources=r'/*')
+
     log.setLevel(config.get('LOG', 'log_level'))
     handler = logging.StreamHandler()
     handler.setFormatter(logging.Formatter('%(asctime)s-%(levelname)s: %(message)s'))
@@ -24,6 +28,11 @@ def init():
 
     pool = apipool.ApiTokenPool()
     pool.set(config.get('OPENAI', 'api_tokens').split(','))
+
+
+@app.route('/test', methods=['POST'])
+def test():
+    return "test"
 
 
 @app.route('/')
@@ -40,10 +49,10 @@ def query():
     log.info(data['query'])
     # TODO: query via OPENAI
     queryBot = bot.QueryBot()
-    answer = queryBot.query(data['query'])
-    log.info(f'AI answer: [{answer}]')
+    answer = json.loads(queryBot.query(data['query']))
+    log.info(f'AI answer: [{answer["choices"]}]')
     rep = {
-        'response': answer
+        'response': answer['choices']
     }
     return json.dumps(rep)
 
